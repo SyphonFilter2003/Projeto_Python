@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise de Dados</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Análise de Dados</h1>
+
+    {% if img_b64_hist %}
+    <h2>Histograma</h2>
+    <img src="data:image/png;base64,{{ img_b64_hist }}" alt="Histograma">
+    {% endif %}
+
+    {% if img_b64_scatter %}
+    <h2>Gráfico de Dispersão</h2>
+    <img src="data:image/png;base64,{{ img_b64_scatter }}" alt="Gráfico de Dispersão">
+    {% endif %}
+
+    {% if img_b64_boxplot %}
+    <h2>Boxplot</h2>
+    <img src="data:image/png;base64,{{ img_b64_boxplot }}" alt="Boxplot">
+    {% endif %}
+
+    {% if img_b64_line %}
+    <h2>Gráfico de Linha</h2>
+    <img src="data:image/png;base64,{{ img_b64_line }}" alt="Gráfico de Linha">
+    {% endif %}
+
+    {% if img_b64_bar %}
+    <h2>Gráfico de Barras (Médias)</h2>
+    <img src="data:image/png;base64,{{ img_b64_bar }}" alt="Gráfico de Barras">
+    {% endif %}
+
+    <a href="{{ url_for('upload_file') }}">Enviar outro arquivo</a>
+    <br><br>
+    <a href="{{ url_for('prediction') }}" class="button">Fazer Predições e Análises Avançadas</a>
+</body>
+</html>
