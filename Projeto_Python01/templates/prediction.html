@@ -6,22 +6,15 @@
     <title>Predições</title>
 </head>
 <body>
-    <h1>Configurar Predições</h1>
-    <form method="post">
-        <label for="target">Coluna Alvo:</label>
-        <select name="target" id="target">
-            {% for column in columns %}
-                <option value="{{ column }}">{{ column }}</option>
-            {% endfor %}
-        </select>
-        <br>
-        <label for="model">Modelo:</label>
-        <select name="model" id="model">
-            <option value="LogisticRegression">Regressão Logística</option>
-            <option value="RandomForestClassifier">Random Forest</option>
-        </select>
-        <br>
-        <button type="submit">Treinar Modelo</button>
+    <h1>Realizar Predições</h1>
+    <form method="post" enctype="multipart/form-data">
+        <label for="file">Carregar arquivo para predição:</label>
+        <input type="file" name="file" accept=".csv"><br><br>
+        <button type="submit">Enviar</button>
     </form>
+    {% if predictions %}
+        <h2>Resultados</h2>
+        <div>{{ predictions|safe }}</div>
+    {% endif %}
 </body>
 </html>

@@ -14,10 +14,19 @@
         {% endfor %}
         <br>
         <label for="target">Selecione a variável-alvo:</label><br>
-        <select name="target">
+        <select name="target" required>
             {% for column in columns %}
                 <option value="{{ column }}">{{ column }}</option>
             {% endfor %}
+        </select>
+        <br><br>
+        <label for="model">Escolha o modelo:</label><br>
+        <select name="model" required>
+            <option value="">-- Selecione um Modelo --</option>
+            <option value="RandomForestClassifier">Random Forest</option>
+            <option value="LogisticRegression">Regressão Logística</option>
+            <option value="XGBClassifier">XGBoost</option>
+            <option value="SVM">Support Vector Machine (SVM)</option>
         </select>
         <br><br>
         <button type="submit">Treinar Modelo</button>
