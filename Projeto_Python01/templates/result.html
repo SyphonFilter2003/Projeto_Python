@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultado da Predição</title>
+</head>
+<body>
+    <h1>Resultado do Treinamento</h1>
+
+    <h2>Acurácia Geral</h2>
+    <p><strong>{{ accuracy|round(2) }}</strong></p>
+
+    <h2>Relatório de Classificação</h2>
+    <table border="1">
+        <tr>
+            <th>Classe</th>
+            <th>Precisão</th>
+            <th>Recall</th>
+            <th>F1-Score</th>
+            <th>Suporte</th>
+        </tr>
+        {% for class, metrics in report.items() if class != 'accuracy' %}
+        <tr>
+            <td>{{ class }}</td>
+            <td>{{ metrics['precision']|round(2) if 'precision' in metrics }}</td>
+            <td>{{ metrics['recall']|round(2) if 'recall' in metrics }}</td>
+            <td>{{ metrics['f1-score']|round(2) if 'f1-score' in metrics }}</td>
+            <td>{{ metrics['support'] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Variáveis Utilizadas</h2>
+    <ul>
+        {% for feature in features %}
+            <li>{{ feature }}</li>
+        {% endfor %}
+    </ul>
+
+</body>
+</html>

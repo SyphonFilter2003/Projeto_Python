@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise Automática</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Análise Automática de Dados</h1>
+        <h2>Resumo Estatístico</h2>
+        <div class="summary">
+            {{ summary|safe }}
+        </div>
+
+        <h2>Colunas Numéricas</h2>
+        <ul>
+            {% for column in numeric_columns %}
+                <li>{{ column }}</li>
+            {% endfor %}
+        </ul>
+
+        <h2>Colunas Categóricas</h2>
+        <ul>
+            {% for column in categorical_columns %}
+                <li>{{ column }}</li>
+            {% endfor %}
+        </ul>
+
+        <form action="/visualize" method="POST">
+            <button type="submit" class="btn">Gerar Gráficos</button>
+        </form>
+    </div>
+</body>
+</html>

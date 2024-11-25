@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurar Predições</title>
+</head>
+<body>
+    <h1>Configurar Predições</h1>
+    <form method="post">
+        <label for="features">Selecione as variáveis de entrada:</label><br>
+        {% for column in columns %}
+            <input type="checkbox" name="features" value="{{ column }}">{{ column }}<br>
+        {% endfor %}
+        <br>
+        <label for="target">Selecione a variável-alvo:</label><br>
+        <select name="target">
+            {% for column in columns %}
+                <option value="{{ column }}">{{ column }}</option>
+            {% endfor %}
+        </select>
+        <br><br>
+        <button type="submit">Treinar Modelo</button>
+    </form>
+</body>
+</html>
