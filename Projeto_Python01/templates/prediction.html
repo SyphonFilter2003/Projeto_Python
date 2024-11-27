@@ -7,21 +7,32 @@
 </head>
 <body>
     <h1>Configurar Predições</h1>
-    <form method="post">
-        <label for="target">Coluna Alvo:</label>
-        <select name="target" id="target">
-            {% for column in columns %}
-                <option value="{{ column }}">{{ column }}</option>
-            {% endfor %}
-        </select>
-        <br>
-        <label for="model">Modelo:</label>
-        <select name="model" id="model">
-            <option value="LogisticRegression">Regressão Logística</option>
-            <option value="RandomForestClassifier">Random Forest</option>
-        </select>
-        <br>
-        <button type="submit">Treinar Modelo</button>
+    <form method="POST" action="{{ url_for('retrain_model') }}">
+        <label for="features">Selecione as variáveis de features:</label><br>
+        <select name="features" multiple>
+            <option value="feature1">Feature 1</option>
+            <option value="feature2">Feature 2</option>
+            <option value="feature3">Feature 3</option>
+            <!-- Adicione outras opções conforme necessário -->
+        </select><br>
+    
+        <label for="target">Selecione a variável target:</label><br>
+        <select name="target">
+            <option value="target">Target</option>
+            <!-- Adicione outras opções conforme necessário -->
+        </select><br>
+    
+        <label for="model">Escolha o modelo:</label><br>
+        <select name="model">
+            <option value="random_forest">Random Forest</option>
+            <option value="logistic_regression">Logistic Regression</option>
+            <option value="svm">SVM</option>
+        </select><br>
+    
+        <label for="n_estimators">Número de Estimadores (apenas para Random Forest):</label><br>
+        <input type="number" name="n_estimators" value="100"><br>
+    
+        <input type="submit" value="Re-treinar">
     </form>
-</body>
-</html>
+    
+

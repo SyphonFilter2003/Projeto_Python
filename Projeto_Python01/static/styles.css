@@ -1,11 +1,19 @@
-/* Estilos gerais (para todas as páginas) */
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Corpo da página */
 body {
     font-family: 'Arial', sans-serif;
     background-color: #f4f4f4;
-    margin: 0;
-    padding: 0;
+    color: #333;
+    padding: 20px;
 }
 
+/* Container principal */
 .container {
     max-width: 1200px; /* Tamanho ideal para a análise */
     width: 100%;
@@ -171,6 +179,44 @@ table caption {
 
 .btn:hover {
     background-color: #2980b9;
+}
+
+/* Tabela de resultados */
+.result-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.result-table th, .result-table td {
+    padding: 12px;
+    text-align: left;
+    border: 1px solid #ddd;
+    font-size: 14px;
+}
+
+.result-table th {
+    background-color: #34495e;
+    color: #fff;
+}
+
+.result-table tr:nth-child(even) {
+    background-color: #ecf0f1;
+}
+
+.result-table tr:hover {
+    background-color: #e0e0e0;
+}
+
+/* Tabela de precisão */
+.table-accuracy {
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #eaf2f8;
+    border: 1px solid #d5dbdb;
+    border-radius: 5px;
 }
 
 /* Responsividade */

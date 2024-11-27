@@ -1,36 +1,66 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resultados da Análise</title>
+    <title>Resultados do Modelo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <h1>Relatório de Resultados</h1>
+    <div class="container">
+        <h1>Resultados do Modelo</h1>
 
-    <h2>Precisão do Modelo: {{ accuracy }}</h2>
+        <h2>Precisão do Modelo: {{ accuracy }}</h2>
 
-    <h3>Relatório de Classificação:</h3>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Classe</th>
-                <th>Precisão</th>
-                <th>Recall</th>
-                <th>F1-Score</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for class_name, metrics in report.items() %}
+        <h3>Relatório de Classificação:</h3>
+        <table class="result-table">
+            <thead>
                 <tr>
-                    <td>{{ class_name }}</td>
-                    <td>{{ metrics.precision }}</td>
-                    <td>{{ metrics.recall }}</td>
-                    <td>{{ metrics['f1-score'] }}</td>
+                    <th>Classe</th>
+                    <th>Precisão</th>
+                    <th>Recall</th>
+                    <th>F1-Score</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for class_name, metrics in report.items() %}
+                    {% if class_name != 'accuracy' %}
+                        <tr>
+                            <td>{{ class_name }}</td>
+                            <td>{{ metrics.precision }}</td>
+                            <td>{{ metrics.recall }}</td>
+                            <td>{{ metrics['f1-score'] }}</td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
 
+        <div class="table-accuracy">
+            <strong>Precisão do Modelo: {{ accuracy }}</strong>
+        </div>
+
+        <div class="graph-container">
+            {% if confusion_matrix %}
+                <div class="graph-item">
+                    <h4>Matriz de Confusão</h4>
+                    <img src="{{ url_for('static', filename='confusion_matrix.png') }}" alt="Matriz de Confusão">
+                </div>
+            {% endif %}
+            {% if roc_curve %}
+                <div class="graph-item">
+                    <h4>Curva ROC</h4>
+                    <img src="{{ url_for('static', filename='roc_curve.png') }}" alt="Curva ROC">
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Botão de re-treinamento -->
+        <form action="{{ url_for('retrain_model') }}" method="POST">
+            <button type="submit" class="btn">Re-treinar Modelo</button>
+        </form>
+
+        <a href="{{ url_for('configure_prediction') }}" class="btn">Voltar para Configuração</a>
+    </div>
 </body>
 </html>

@@ -1,15 +1,15 @@
 import os
 import io
-from flask import session
 from flask import Flask, request, render_template, redirect, url_for
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import LogisticRegression 
+from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics import classification_report   
+from sklearn.metrics import classification_report
+import joblib  # Para salvar o modelo treinado
 import base64
 
 app = Flask(__name__)
@@ -21,7 +21,42 @@ label_encoders = {}
 model = None
 target_encoder = None
 
-#File upload
+# Função para carregar o modelo
+def load_model():
+    global model
+    if os.path.exists('model.pkl'):
+        model = joblib.load('model.pkl')
+
+# Função para treinar o modelo
+def train_model(data, features, target, model_choice, n_estimators=100):
+    X = data[features]
+    y = data[target]
+
+    # Divisão dos dados
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+    # Escolher o modelo baseado na escolha
+    if model_choice == "random_forest":
+        model = RandomForestClassifier(n_estimators=n_estimators, random_state=42)
+    elif model_choice == "logistic_regression":
+        model = LogisticRegression(max_iter=1000)
+    elif model_choice == "svm":
+        model = SVC()
+
+    # Treinamento do modelo
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+
+    # Gerar o relatório de classificação
+    report = classification_report(y_test, y_pred, output_dict=True)
+    accuracy = model.score(X_test, y_test)
+
+    # Salvar o modelo treinado com joblib (se desejado)
+    # joblib.dump(model, 'model.pkl')
+
+    return report, accuracy
+
+# Rota de upload de arquivos
 @app.route("/", methods=["GET", "POST"])
 def upload_file():
     if request.method == "POST":
@@ -85,35 +120,6 @@ def analyze_data():
         plots=plots  # Passando a variável `plots` para o template
     )
 
-@app.route("/visualize", methods=["POST"])
-def visualize_data():
-    global uploaded_data
-    if uploaded_data is None:
-        return redirect(url_for('upload_file'))
-
-    # Gerar gráficos para colunas numéricas
-    numeric_columns = uploaded_data.select_dtypes(include=['number']).columns.tolist()
-    plots = {}
-
-    for column in numeric_columns:
-        plt.figure()
-        uploaded_data[column].hist(bins=20, color="skyblue", edgecolor="black")
-        plt.title(f"Distribuição de {column}")
-        plt.xlabel(column)
-        plt.ylabel("Frequência")
-
-        # Salvar o gráfico em base64 para exibição no HTML
-        buffer = io.BytesIO()
-        plt.savefig(buffer, format="png")
-        buffer.seek(0)
-        image_base64 = base64.b64encode(buffer.read()).decode('utf-8')
-        buffer.close()
-        plt.close()
-        plots[column] = image_base64
-
-    return render_template("visualize.html", plots=plots)
-
-# Configure prediction page
 @app.route("/configure", methods=["GET", "POST"])
 def configure_prediction():
     global uploaded_data
@@ -122,7 +128,6 @@ def configure_prediction():
 
     columns = uploaded_data.columns
     if request.method == "POST":
-        # Pegando as variáveis selecionadas
         features = request.form.getlist("features")
         target = request.form.get("target")
         model_choice = request.form.get("model")
@@ -135,47 +140,55 @@ def configure_prediction():
             return "Seleção inválida de variáveis.", 400
 
         # Codificando as variáveis categóricas com LabelEncoder
-        label_encoders = {}  # Dicionário para armazenar os codificadores de cada coluna
         for col in uploaded_data.columns:
-            if uploaded_data[col].dtype == 'object':  # Se a coluna for categórica
+            if uploaded_data[col].dtype == 'object':
                 le = LabelEncoder()
-                uploaded_data[col] = le.fit_transform(uploaded_data[col])  # Aplicando o encoding
-                label_encoders[col] = le  # Armazenando o codificador
-
-        # Preparando os dados para o treinamento
-        X = uploaded_data[features].copy()  # Selecionando as features
-        y = uploaded_data[target]  # Selecionando o target
-
-        # Divisão dos dados em treino e teste
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
-
-        # Selecionando o modelo conforme a escolha do usuário
-        if model_choice == "random_forest":
-            model = RandomForestClassifier(n_estimators=n_estimators, random_state=42)
-        elif model_choice == "logistic_regression":
-            model = LogisticRegression(max_iter=1000)
-        elif model_choice == "svm":
-            model = SVC()
+                uploaded_data[col] = le.fit_transform(uploaded_data[col])
+                label_encoders[col] = le
 
         # Treinando o modelo
-        model.fit(X_train, y_train)
-        y_pred = model.predict(X_test)
+        report, accuracy = train_model(uploaded_data, features, target, model_choice, n_estimators)
 
-        # Gerando o relatório de classificação
-        report = classification_report(y_test, y_pred, output_dict=True)
-
-        # Passando o relatório e a precisão para o template
-        return render_template(
-            "result.html",
-            report=report,
-            accuracy=model.score(X_test, y_test)
-        )
+        # Renderiza a página de resultados
+        return render_template("result.html", report=report, accuracy=accuracy)
 
     return render_template("configure.html", columns=columns)
+
+# Rota para re-treinamento do modelo
+@app.route("/retrain", methods=["POST"])
+def retrain_model():
+    global uploaded_data, model
+
+    # Verifica se há dados carregados
+    if uploaded_data is None:
+        return redirect(url_for('upload_file'))
+
+    # Obtenção dos dados do formulário
+    features = request.form.getlist("features")
+    target = request.form.get("target")
+    
+    # Verificar se 'features' e 'target' são válidos
+    if not features or not target:
+        return render_template('result.html', error_message="Por favor, selecione as variáveis corretamente.", upload_success=False)
+
+    model_choice = request.form.get("model")
+    n_estimators = int(request.form.get("n_estimators", 100))
+
+    # Re-treinando o modelo
+    report, accuracy = train_model(uploaded_data, features, target, model_choice, n_estimators)
+
+    # Verificando se o modelo foi treinado e se as variáveis existem
+    if report is None or accuracy is None:
+        return render_template('result.html', error_message="Erro ao treinar o modelo.", upload_success=False)
+
+    # Renderiza a página de resultados com o novo modelo treinado
+    return render_template("result.html", report=report, accuracy=accuracy)
 
 @app.route("/result")
 def result_page():
     return render_template('result.html')
 
 if __name__ == "__main__":
+    # Tenta carregar o modelo existente, se houver
+    load_model()
     app.run(debug=True)
