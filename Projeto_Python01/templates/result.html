@@ -1,44 +1,49 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resultado da Predição</title>
+    <title>Resultado do Modelo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <h1>Resultado do Treinamento</h1>
+    <div class="container">
+        <h1>Resultado do Modelo de Machine Learning</h1>
 
-    <h2>Acurácia Geral</h2>
-    <p><strong>{{ accuracy|round(2) }}</strong></p>
+        <!-- Mensagem de sucesso -->
+        <h2>Modelo Treinado com Sucesso!</h2>
+        <p>O modelo foi treinado com as variáveis selecionadas. Abaixo estão as métricas de desempenho:</p>
 
-    <h2>Relatório de Classificação</h2>
-    <table border="1">
-        <tr>
-            <th>Classe</th>
-            <th>Precisão</th>
-            <th>Recall</th>
-            <th>F1-Score</th>
-            <th>Suporte</th>
-        </tr>
-        {% for class, metrics in report.items() if class != 'accuracy' %}
-        <tr>
-            <td>{{ class }}</td>
-            <td>{{ metrics['precision']|round(2) if 'precision' in metrics }}</td>
-            <td>{{ metrics['recall']|round(2) if 'recall' in metrics }}</td>
-            <td>{{ metrics['f1-score']|round(2) if 'f1-score' in metrics }}</td>
-            <td>{{ metrics['support'] }}</td>
-        </tr>
-        {% endfor %}
-    </table>
+        <h2>Relatório de Classificação</h2>
+        <table class="report-table">
+            <thead>
+                <tr>
+                    <th>Classe</th>
+                    <th>Precisão</th>
+                    <th>Recall</th>
+                    <th>F1-Score</th>
+                    <th>Suporte</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for class, metrics in report.items() %}
+                    {% if class != 'accuracy' %}
+                        <tr>
+                            <td>{{ class }}</td>
+                            <td>{{ metrics['precision']|round(2) }}</td>
+                            <td>{{ metrics['recall']|round(2) }}</td>
+                            <td>{{ metrics['f1-score']|round(2) }}</td>
+                            <td>{{ metrics['support'] }}</td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
 
+        <h2>Precisão do Modelo</h2>
+        <p class="accuracy">Precisão: {{ accuracy|round(2) }}</p>
 
-    <h2>Variáveis Utilizadas</h2>
-    <ul>
-        {% for feature in features %}
-            <li>{{ feature }}</li>
-        {% endfor %}
-    </ul>
-
-    <button onclick="location.href='/predict'" class="btn">Ir para Predição</button>
+        <a href="{{ url_for('analyze_data') }}" class="btn btn-primary">Voltar à Análise de Dados</a>
+    </div>
 </body>
 </html>

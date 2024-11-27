@@ -1,35 +1,76 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Configurar Predições</title>
+    <title>Configuração do Modelo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <h1>Configurar Predições</h1>
-    <form method="post">
-        <label for="features">Selecione as variáveis de entrada:</label><br>
-        {% for column in columns %}
-            <input type="checkbox" name="features" value="{{ column }}">{{ column }}<br>
-        {% endfor %}
-        <br>
-        <label for="target">Selecione a variável-alvo:</label><br>
-        <select name="target" required>
-            {% for column in columns %}
-                <option value="{{ column }}">{{ column }}</option>
-            {% endfor %}
-        </select>
-        <br><br>
-        <label for="model">Escolha o modelo:</label><br>
-        <select name="model" required>
-            <option value="">-- Selecione um Modelo --</option>
-            <option value="RandomForestClassifier">Random Forest</option>
-            <option value="LogisticRegression">Regressão Logística</option>
-            <option value="XGBClassifier">XGBoost</option>
-            <option value="SVM">Support Vector Machine (SVM)</option>
-        </select>
-        <br><br>
-        <button type="submit">Treinar Modelo</button>
-    </form>
+    <div class="container">
+        <h1>Configuração do Modelo de Machine Learning</h1>
+
+        <!-- Instrução para o usuário -->
+        <p>Selecione as variáveis para treinar o modelo:</p>
+
+        <form method="POST">
+            <!-- Seção para selecionar as features -->
+            <div class="form-group">
+                <label for="features"><strong>Selecione as variáveis independentes (features)</strong></label><br>
+                <div class="checkbox-group">
+                    {% for column in columns %}
+                        <label>
+                            <input type="checkbox" name="features" value="{{ column }}"> {{ column }}
+                        </label><br>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Seção para selecionar a variável alvo -->
+            <div class="form-group">
+                <label for="target"><strong>Selecione a variável alvo (target)</strong></label>
+                <select name="target" class="form-control">
+                    {% for column in columns %}
+                        <option value="{{ column }}">{{ column }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Seção para selecionar o tipo de modelo -->
+            <div class="form-group">
+                <label for="model"><strong>Selecione o tipo de modelo</strong></label>
+                <select name="model" class="form-control">
+                    <option value="random_forest">Random Forest</option>
+                    <option value="logistic_regression">Regressão Logística</option>
+                    <option value="svm">Support Vector Machine (SVM)</option>
+                </select>
+            </div>
+
+            <!-- Se a opção for Random Forest, exibe o número de árvores -->
+            <div class="form-group" id="rf_params" style="display:none;">
+                <label for="n_estimators"><strong>Número de Árvores no Random Forest</strong></label>
+                <input type="number" name="n_estimators" class="form-control" value="100" min="10" max="500">
+            </div>
+
+            <!-- Botão para enviar o formulário -->
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Treinar Modelo</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Exibe o campo para número de árvores somente quando o Random Forest for selecionado
+        const modelSelect = document.querySelector('select[name="model"]');
+        const rfParams = document.getElementById('rf_params');
+
+        modelSelect.addEventListener('change', function() {
+            if (this.value === 'random_forest') {
+                rfParams.style.display = 'block';
+            } else {
+                rfParams.style.display = 'none';
+            }
+        });
+    </script>
 </body>
 </html>

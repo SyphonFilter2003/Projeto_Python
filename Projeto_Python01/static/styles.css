@@ -1,58 +1,117 @@
-/* Geral */
+/* Estilos gerais */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f9;
-    color: #333;
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
     margin: 0;
     padding: 0;
 }
 
-/* Container principal */
 .container {
-    max-width: 600px;
-    margin: 50px auto;
-    padding: 20px;
-    background: #ffffff;
+    max-width: 100%;
+    width: 100%;
+    margin: 0 auto;
+    padding: 30px;
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    overflow-x: hidden;
+}
+
+/* Títulos */
+h1, h2 {
+    color: #2c3e50;
     text-align: center;
 }
 
-/* Título */
-h1 {
-    font-size: 24px;
-    margin-bottom: 20px;
+h2 {
+    margin-top: 30px;
 }
 
-/* Parágrafo */
-p {
-    font-size: 16px;
-    color: #666;
+/* Estilo para todas as tabelas */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
 }
 
-/* Input de arquivo */
-.file-input {
-    margin: 20px 0;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 14px;
+table th, table td {
+    padding: 12px;
+    text-align: center;
+    border: 1px solid #ddd;
+    font-size: 1.1em;
 }
 
-/* Botão */
+table th {
+    background-color: #3498db;
+    color: white;
+}
+
+table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+table tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Melhorando a legibilidade da tabela com bordas e padding */
+table caption {
+    font-size: 1.5em;
+    margin-bottom: 15px;
+    text-align: left;
+    font-weight: bold;
+    color: #2980b9;
+}
+
+/* Estilo para a precisão */
+.accuracy {
+    font-size: 1.5em;
+    color: #2980b9;
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 30px;
+}
+
+/* Botões */
 .btn {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: #fff;
+    background-color: #3498db;
+    color: white;
+    padding: 12px 20px;
     border: none;
     border-radius: 5px;
-    font-size: 16px;
     cursor: pointer;
+    font-size: 16px;
+    display: inline-block;
+    text-align: center;
     text-decoration: none;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s ease;
 }
 
 .btn:hover {
-    background-color: #0056b3;
+    background-color: #2980b9;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+
+    table th, table td {
+        padding: 8px;
+    }
+
+    .accuracy {
+        font-size: 1.2em;
+    }
+
+    .btn {
+        width: 100%;
+        padding: 14px;
+    }
+
+    /* Ajustando a largura da tabela para garantir que ela caiba bem em telas pequenas */
+    table {
+        font-size: 14px;
+    }
 }

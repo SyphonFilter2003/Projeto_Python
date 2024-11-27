@@ -5,15 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Análise de Dados - Upload</title>
     <link rel="stylesheet" href="/static/styles.css">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 </head>
 <body>
     <div class="container">
         <h1>Upload de Arquivo CSV</h1>
         <p>Envie o arquivo que deseja analisar.</p>
-        <form action="/" method="post" enctype="multipart/form-data">
-            <input type="file" name="file" accept=".csv" class="file-input">
-            <button type="submit" class="btn">Enviar Arquivo</button>
+        <form method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="file">Escolha um arquivo CSV</label>
+                <input type="file" class="form-control" id="file" name="file" accept=".csv">
+            </div>
+            <button type="submit" class="btn btn-primary">Enviar</button>
         </form>
     </div>
+
+    {% if upload_success %}
+        <script>
+            // Exibir o pop-up de sucesso
+            Swal.fire({
+                title: 'Arquivo Enviado!',
+                text: 'O arquivo CSV foi carregado com sucesso!',
+                icon: 'success',
+                confirmButtonText: 'Ok'
+            }).then(function() {
+                // Após o pop-up de sucesso, redireciona para a página de análise
+                window.location.href = "{{ url_for('analyze_data') }}";
+            });
+        </script>
+    {% endif %}
+
+    {% if error_message %}
+        <script>
+            Swal.fire({
+                title: 'Erro!',
+                text: '{{ error_message }}',
+                icon: 'error',
+                confirmButtonText: 'Tentar Novamente'
+            });
+        </script>
+    {% endif %}
 </body>
 </html>

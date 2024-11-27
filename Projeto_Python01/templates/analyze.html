@@ -1,37 +1,51 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Análise Automática</title>
-    <link rel="stylesheet" href="/static/styles.css">
+    <title>Análise de Dados</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <div class="container">
-        <h1>Análise Automática de Dados</h1>
-        <h2>Resumo Estatístico</h2>
-        <div class="summary">
-            {{ summary|safe }}
+        <h1>Análise Estatística dos Dados</h1>
+        
+        <h2>Resumo Descritivo</h2>
+        <table class="table">
+            <caption>Estatísticas Descritivas</caption>
+            {{ summary|safe }}  <!-- A variável summary contém a tabela em formato HTML -->
+        </table>
+
+        <div class="numeric-section column-section">
+            <h3>Colunas Numéricas</h3>
+            <div class="column-list">
+                {% for column in numeric_columns %}
+                    <div class="column-item">{{ column }}</div>
+                {% endfor %}
+            </div>
         </div>
 
-        <h2>Colunas Numéricas</h2>
-        <ul>
-            {% for column in numeric_columns %}
-                <li>{{ column }}</li>
-            {% endfor %}
-        </ul>
+        <div class="categorical-section column-section">
+            <h3>Colunas Categóricas</h3>
+            <div class="column-list">
+                {% for column in categorical_columns %}
+                    <div class="column-item">{{ column }}</div>
+                {% endfor %}
+            </div>
+        </div>
 
-        <h2>Colunas Categóricas</h2>
-        <ul>
-            {% for column in categorical_columns %}
-                <li>{{ column }}</li>
+        <h2>Gráficos</h2>
+        <div class="graph-container">
+            {% for column, plot in plots.items() %}
+                <div class="graph-item">
+                    <img src="data:image/png;base64,{{ plot }}" alt="Gráfico de {{ column }}">
+                </div>
             {% endfor %}
-        </ul>
+        </div>
 
-        <form action="/visualize" method="POST">
-            <button type="submit" class="btn">Gerar Gráficos</button>
-        </form>
+        <div class="train-model-section">
+            <a href="{{ url_for('configure_prediction') }}" class="btn btn-success">Configurar e Treinar Modelo</a>
+        </div>
     </div>
-    <button onclick="location.href='/predict'" class="btn">Ir para Predição</button>
 </body>
 </html>

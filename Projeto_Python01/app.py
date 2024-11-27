@@ -1,83 +1,97 @@
 import os
 import io
+from flask import session
 from flask import Flask, request, render_template, redirect, url_for
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics import classification_report
-from sklearn.linear_model import LogisticRegression
-from xgboost import XGBClassifier
+from sklearn.linear_model import LogisticRegression 
 from sklearn.svm import SVC
-import joblib
+from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import classification_report   
 import base64
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-# Variáveis globais para dados e modelos
 uploaded_data = None
 label_encoders = {}
 model = None
 target_encoder = None
 
-# Página inicial: Upload de arquivos
+#File upload
 @app.route("/", methods=["GET", "POST"])
 def upload_file():
     if request.method == "POST":
         if 'file' not in request.files:
-            return "Nenhum arquivo enviado", 400
+            return render_template('upload.html', upload_success=False, error_message="Nenhum arquivo enviado.")
         file = request.files['file']
         if file.filename == '':
-            return "Arquivo sem nome", 400
+            return render_template('upload.html', upload_success=False, error_message="Arquivo sem nome.")
         if file and file.filename.endswith('.csv'):
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
             file.save(filepath)
             global uploaded_data
             uploaded_data = pd.read_csv(filepath)
+            
+            # Exibe pop-up de sucesso e depois redireciona
+            return render_template('upload.html', upload_success=True)
+        else:
+            return render_template('upload.html', upload_success=False, error_message="Por favor, envie um arquivo CSV.")
+    
+    return render_template("upload.html", upload_success=False)
 
-            # Limpeza dos dados
-            uploaded_data = uploaded_data.dropna()
-
-            print(f"Quantidade de linhas no dataset: {len(uploaded_data)}")
-            return redirect(url_for('analyze_data'))
-    return render_template("upload.html")
-
-# Página de análise de dados
 @app.route("/analyze", methods=["GET", "POST"])
 def analyze_data():
     global uploaded_data
     if uploaded_data is None:
         return redirect(url_for('upload_file'))
-    
-    # Exibir a distribuição do target no console
-    print("Distribuição da variável-alvo (Outcome):")
-    if 'Outcome' in uploaded_data.columns:
-        print(uploaded_data['Outcome'].value_counts())
 
-    # Resumo estatístico
+    # Geração de estatísticas descritivas
     summary = uploaded_data.describe(include='all').transpose()
 
-    # Identificar tipos de colunas
+    # Colunas numéricas e categóricas
     numeric_columns = uploaded_data.select_dtypes(include=['number']).columns.tolist()
     categorical_columns = uploaded_data.select_dtypes(exclude=['number']).columns.tolist()
 
+    # Inicializando a variável de gráficos
+    plots = {}
+
+    # Gerar gráficos para colunas numéricas
+    for column in numeric_columns:
+        plt.figure()
+        uploaded_data[column].hist(bins=20, color="skyblue", edgecolor="black")
+        plt.title(f"Distribuição de {column}")
+        plt.xlabel(column)
+        plt.ylabel("Frequência")
+
+        # Salvar o gráfico em base64 para exibição no HTML
+        buffer = io.BytesIO()
+        plt.savefig(buffer, format="png")
+        buffer.seek(0)
+        image_base64 = base64.b64encode(buffer.read()).decode('utf-8')
+        buffer.close()
+        plt.close()
+        plots[column] = image_base64  # Armazenando o gráfico gerado na variável `plots`
+
+    # Passar informações para o template
     return render_template(
         "analyze.html",
         summary=summary.to_html(classes="table"),
         numeric_columns=numeric_columns,
-        categorical_columns=categorical_columns
+        categorical_columns=categorical_columns,
+        plots=plots  # Passando a variável `plots` para o template
     )
 
-# Visualização de dados
 @app.route("/visualize", methods=["POST"])
 def visualize_data():
     global uploaded_data
     if uploaded_data is None:
         return redirect(url_for('upload_file'))
 
+    # Gerar gráficos para colunas numéricas
     numeric_columns = uploaded_data.select_dtypes(include=['number']).columns.tolist()
     plots = {}
 
@@ -88,6 +102,7 @@ def visualize_data():
         plt.xlabel(column)
         plt.ylabel("Frequência")
 
+        # Salvar o gráfico em base64 para exibição no HTML
         buffer = io.BytesIO()
         plt.savefig(buffer, format="png")
         buffer.seek(0)
@@ -98,102 +113,65 @@ def visualize_data():
 
     return render_template("visualize.html", plots=plots)
 
-# Configurar e treinar o modelo
+# Configure prediction page
 @app.route("/configure", methods=["GET", "POST"])
 def configure_prediction():
     global uploaded_data
     if uploaded_data is None:
-        return redirect(url_for("upload_file"))
+        return redirect(url_for('upload_file'))
 
     columns = uploaded_data.columns
-
     if request.method == "POST":
+        # Pegando as variáveis selecionadas
         features = request.form.getlist("features")
         target = request.form.get("target")
         model_choice = request.form.get("model")
+        n_estimators = int(request.form.get("n_estimators", 100))  # Número de árvores no Random Forest
 
-        X = uploaded_data[features]
-        y = uploaded_data[target]
+        # Validação das variáveis
+        if not features or not target:
+            return "Por favor, selecione as variáveis.", 400
+        if target not in uploaded_data.columns or any(f not in uploaded_data.columns for f in features):
+            return "Seleção inválida de variáveis.", 400
 
-        global label_encoders, target_encoder, model
-        label_encoders = {}
-        for col in X.select_dtypes(include=['object']).columns:
-            le = LabelEncoder()
-            X[col] = le.fit_transform(X[col])
-            label_encoders[col] = le
+        # Codificando as variáveis categóricas com LabelEncoder
+        label_encoders = {}  # Dicionário para armazenar os codificadores de cada coluna
+        for col in uploaded_data.columns:
+            if uploaded_data[col].dtype == 'object':  # Se a coluna for categórica
+                le = LabelEncoder()
+                uploaded_data[col] = le.fit_transform(uploaded_data[col])  # Aplicando o encoding
+                label_encoders[col] = le  # Armazenando o codificador
 
-        if y.dtype == 'object' or y.nunique() < 20:
-            target_encoder = LabelEncoder()
-            y = target_encoder.fit_transform(y)
-        else:
-            target_encoder = None
+        # Preparando os dados para o treinamento
+        X = uploaded_data[features].copy()  # Selecionando as features
+        y = uploaded_data[target]  # Selecionando o target
 
+        # Divisão dos dados em treino e teste
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
-        # Escolher o modelo
-        if model_choice == "RandomForestClassifier":
-            model = RandomForestClassifier(n_estimators=200, max_depth=10, random_state=42)
-        elif model_choice == "LogisticRegression":
-            model = LogisticRegression(solver='liblinear', random_state=42)
-        elif model_choice == "XGBClassifier":
-            model = XGBClassifier(random_state=42)
-        elif model_choice == "SVM":
-            model = SVC(random_state=42, probability=True)
+        # Selecionando o modelo conforme a escolha do usuário
+        if model_choice == "random_forest":
+            model = RandomForestClassifier(n_estimators=n_estimators, random_state=42)
+        elif model_choice == "logistic_regression":
+            model = LogisticRegression(max_iter=1000)
+        elif model_choice == "svm":
+            model = SVC()
 
+        # Treinando o modelo
         model.fit(X_train, y_train)
         y_pred = model.predict(X_test)
 
-        accuracy = model.score(X_test, y_test)
+        # Gerando o relatório de classificação
         report = classification_report(y_test, y_pred, output_dict=True)
 
-        return render_template("result.html", accuracy=accuracy, features=features, report=report)
+        # Passando o relatório e a precisão para o template
+        return render_template(
+            "result.html",
+            report=report,
+            accuracy=model.score(X_test, y_test)
+        )
 
-    return render_template(
-        "configure.html",
-        columns=columns,
-        model_choices=["RandomForestClassifier", "LogisticRegression", "XGBClassifier", "SVM"]
-    )
-
-# Página de predição
-@app.route("/predict", methods=["GET", "POST"])
-def predict():
-    global model, label_encoders, target_encoder
-    if model is None:
-        return redirect(url_for("configure_prediction"))
-
-    if request.method == "POST":
-        if 'file' not in request.files:
-            return "Nenhum arquivo enviado", 400
-        file = request.files['file']
-        if file.filename == '':
-            return "Arquivo sem nome", 400
-        if file and file.filename.endswith('.csv'):
-            new_data = pd.read_csv(file)
-            original_columns = list(model.feature_names_in_)
-            if not set(original_columns).issubset(set(new_data.columns)):
-                return "Arquivo inválido: colunas não correspondem ao modelo.", 400
-
-            X_new = new_data[original_columns].copy()
-            for col, le in label_encoders.items():
-                if col in X_new.columns:
-                    X_new[col] = le.transform(X_new[col])
-            
-            predictions = model.predict(X_new)
-            if target_encoder:
-                predictions = target_encoder.inverse_transform(predictions)
-            new_data["Predictions"] = predictions
-
-            return render_template("prediction.html", predictions=new_data.to_html(classes="table"))
-    return render_template("prediction.html")
-
-# Página de download do modelo treinado
-@app.route("/download_model")
-def download_model():
-    if model is None:
-        return redirect(url_for("configure_prediction"))
-    filepath = os.path.join(app.config['UPLOAD_FOLDER'], "trained_model.pkl")
-    joblib.dump(model, filepath)
-    return redirect(f"/uploads/trained_model.pkl")
+    return render_template("configure.html", columns=columns)
 
 if __name__ == "__main__":
     app.run(debug=True)
