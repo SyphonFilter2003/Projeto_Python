@@ -1,4 +1,4 @@
-/* Estilos gerais */
+/* Estilos gerais (para todas as páginas) */
 body {
     font-family: 'Arial', sans-serif;
     background-color: #f4f4f4;
@@ -7,7 +7,7 @@ body {
 }
 
 .container {
-    max-width: 100%;
+    max-width: 1200px; /* Tamanho ideal para a análise */
     width: 100%;
     margin: 0 auto;
     padding: 30px;
@@ -17,17 +17,52 @@ body {
     overflow-x: hidden;
 }
 
-/* Títulos */
-h1, h2 {
-    color: #2c3e50;
+/* Estilos específicos para a página de upload */
+.upload-page .container {
+    max-width: 600px; /* Tornando a página de upload mais compacta */
+    padding: 40px;
+}
+
+.upload-page .btn {
+    background-color: #27ae60; /* Verde para o botão de upload */
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    display: inline-block;
     text-align: center;
+    transition: background-color 0.3s ease;
 }
 
-h2 {
-    margin-top: 30px;
+.upload-page .btn:hover {
+    background-color: #2ecc71; /* Verde mais claro ao passar o mouse */
 }
 
-/* Estilo para todas as tabelas */
+/* Estilos para o input de arquivo com label personalizado */
+.upload-page .upload-label {
+    display: inline-block;
+    background-color: #3498db;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    text-align: center;
+    width: 100%;
+    transition: background-color 0.3s ease;
+}
+
+.upload-page .upload-label:hover {
+    background-color: #2980b9; /* Cor de hover para o label */
+}
+
+.upload-page input[type="file"] {
+    display: none;
+}
+
+/* Estilo para as tabelas */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -63,13 +98,60 @@ table caption {
     color: #2980b9;
 }
 
-/* Estilo para a precisão */
-.accuracy {
-    font-size: 1.5em;
-    color: #2980b9;
+/* Seções de colunas numéricas e categóricas */
+.column-section {
+    margin-top: 40px;
     text-align: center;
-    font-weight: bold;
-    margin-bottom: 30px;
+}
+
+.column-section h3 {
+    color: #2c3e50;
+}
+
+.column-list {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.column-item {
+    background-color: #3498db;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 1.1em;
+    width: 180px;
+    text-align: center;
+}
+
+.column-item:hover {
+    background-color: #2980b9;
+}
+
+/* Área dos gráficos */
+.graph-container {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 30px;
+    margin-top: 30px;
+}
+
+.graph-item {
+    width: 300px;
+    height: 300px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.graph-item img {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 5px;
 }
 
 /* Botões */
@@ -99,19 +181,19 @@ table caption {
 
     table th, table td {
         padding: 8px;
+        font-size: 0.9em;
     }
 
-    .accuracy {
-        font-size: 1.2em;
+    .column-item {
+        font-size: 0.9em;
     }
 
-    .btn {
+    .graph-item {
         width: 100%;
-        padding: 14px;
+        height: 250px;
     }
 
-    /* Ajustando a largura da tabela para garantir que ela caiba bem em telas pequenas */
-    table {
-        font-size: 14px;
+    .graph-container {
+        flex-direction: column;
     }
 }

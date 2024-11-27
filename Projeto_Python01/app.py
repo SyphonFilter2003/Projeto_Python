@@ -173,5 +173,9 @@ def configure_prediction():
 
     return render_template("configure.html", columns=columns)
 
+@app.route("/result")
+def result_page():
+    return render_template('result.html')
+
 if __name__ == "__main__":
     app.run(debug=True)
