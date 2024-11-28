@@ -32,6 +32,8 @@ Endpoints
 A aplicação possui as seguintes rotas (endpoints):
 
 
+
+
 # 1. / - Rota de Upload de Arquivo CSV
 Método: GET e POST
 Descrição: Esta rota permite que o usuário faça o upload de um arquivo CSV. Quando o arquivo é enviado, ele é armazenado e lido usando o Pandas.
