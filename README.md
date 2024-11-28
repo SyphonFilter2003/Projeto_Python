@@ -16,22 +16,23 @@ Matplotlib: Geração de gráficos de visualização.
 Joblib: Salvamento e carregamento de modelos treinados.
 HTML/CSS: Interface de usuário.
 Funcionalidades
-1. Upload de Arquivo CSV
+# 1. Upload de Arquivo CSV
 O usuário pode fazer upload de um arquivo CSV contendo os dados que deseja analisar. O arquivo é processado e as variáveis são extraídas para treinamento de modelos de aprendizado de máquina.
 
-2. Configuração do Modelo
+# 2. Configuração do Modelo
 Após o upload, o usuário pode selecionar as variáveis (features) e a variável alvo (target) para treinar o modelo. Ele também pode escolher entre três tipos de modelos: Random Forest, Regressão Logística e SVM.
 
-3. Treinamento do Modelo
+# 3. Treinamento do Modelo
 O modelo é treinado com os dados selecionados e o relatório de classificação, incluindo precisão, recall e F1-score, é gerado. O usuário também pode visualizar gráficos como a importância das variáveis e a matriz de confusão.
 
-4. Re-treinamento do Modelo
+# 4. Re-treinamento do Modelo
 O modelo pode ser re-treinado com novas configurações ou dados sem precisar reiniciar o aplicativo.
 
 Endpoints
 A aplicação possui as seguintes rotas (endpoints):
 
-1. / - Rota de Upload de Arquivo CSV
+
+# 1. / - Rota de Upload de Arquivo CSV
 Método: GET e POST
 Descrição: Esta rota permite que o usuário faça o upload de um arquivo CSV. Quando o arquivo é enviado, ele é armazenado e lido usando o Pandas.
 Fluxo:
@@ -40,7 +41,8 @@ POST: Processa o arquivo enviado, lê o CSV e exibe uma mensagem de sucesso ou e
 Parâmetros de entrada:
 
 Arquivo CSV enviado pelo formulário (campo file).
-2. /analyze - Rota de Análise dos Dados
+
+# 2. /analyze - Rota de Análise dos Dados
 Método: GET
 Descrição: Exibe uma análise estatística básica dos dados carregados (média, desvio padrão, etc.), separando colunas numéricas e categóricas. Também gera gráficos para as variáveis numéricas.
 Fluxo:
@@ -49,7 +51,8 @@ Saídas:
 
 Tabela com estatísticas descritivas dos dados.
 Gráficos de distribuição para cada variável numérica.
-3. /configure - Rota de Configuração do Modelo de Machine Learning
+
+# 3. /configure - Rota de Configuração do Modelo de Machine Learning
 Método: GET e POST
 Descrição: Esta rota permite que o usuário selecione as variáveis independentes (features) e a variável alvo (target) para treinar o modelo, além de escolher o tipo de modelo. O usuário também pode definir parâmetros como o número de árvores para o modelo Random Forest.
 Fluxo:
@@ -65,7 +68,8 @@ Saídas:
 
 Relatório de classificação (precisão, recall, F1-score).
 Gráfico de importância das variáveis (para Random Forest).
-4. /retrain - Rota de Re-treinamento do Modelo
+
+# 4. /retrain - Rota de Re-treinamento do Modelo
 Método: POST
 Descrição: Esta rota permite re-treinar o modelo com novas configurações ou dados. O usuário pode modificar as variáveis ou o tipo de modelo e o sistema irá re-treinar o modelo com as novas opções.
 Fluxo:
@@ -80,7 +84,8 @@ Saídas:
 
 Relatório de classificação do novo modelo.
 Gráfico de importância das variáveis (se Random Forest).
-5. /result - Rota de Resultados
+
+# 5. /result - Rota de Resultados
 Método: GET
 Descrição: Exibe os resultados do modelo treinado, incluindo o relatório de classificação, a acurácia, e outros gráficos gerados (como matriz de confusão e curva ROC).
 Fluxo:
