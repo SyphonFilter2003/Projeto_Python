@@ -183,6 +183,7 @@ def configure_prediction():
 
     return render_template("configure.html", columns=columns)  # Exibe a página de configuração com as colunas
 
+
 # Rota para re-treinamento do modelo (usando os mesmos dados)
 @app.route("/retrain", methods=["POST"])
 def retrain_model():
