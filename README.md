@@ -1,7 +1,7 @@
 # Instalar dependências: 
 ```pip install flask pandas scikit-learn matplotlib joblib```
 
-#Análise de Dados com Modelos de Machine Learning
+# Análise de Dados com Modelos de Machine Learning
 
 Este projeto é uma aplicação web desenvolvida com Flask para carregar um arquivo CSV, treinar um modelo de Machine Learning baseado nos dados carregados e realizar análises dos dados. O usuário pode fazer upload de um arquivo CSV, configurar as variáveis do modelo, treinar o modelo e visualizar os resultados e métricas de desempenho do modelo.
 
