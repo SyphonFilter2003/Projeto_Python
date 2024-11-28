@@ -40,20 +40,13 @@
             <strong>Precisão do Modelo: {{ accuracy }}</strong>
         </div>
 
-        <div class="graph-container">
-            {% if confusion_matrix %}
-                <div class="graph-item">
-                    <h4>Matriz de Confusão</h4>
-                    <img src="{{ url_for('static', filename='confusion_matrix.png') }}" alt="Matriz de Confusão">
-                </div>
-            {% endif %}
-            {% if roc_curve %}
-                <div class="graph-item">
-                    <h4>Curva ROC</h4>
-                    <img src="{{ url_for('static', filename='roc_curve.png') }}" alt="Curva ROC">
-                </div>
-            {% endif %}
-        </div>
+        <!-- Exibir o gráfico de importância das variáveis, se houver -->
+        {% if importance_graph %}
+            <div class="graph-item">
+                <h4>Importância das Variáveis</h4>
+                <img src="data:image/png;base64,{{ importance_graph }}" alt="Importância das Variáveis">
+            </div>
+        {% endif %}
 
         <!-- Botão de re-treinamento -->
         <form action="{{ url_for('retrain_model') }}" method="POST">

@@ -1,11 +1,9 @@
-/* Reset básico */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-/* Corpo da página */
 body {
     font-family: 'Arial', sans-serif;
     background-color: #f4f4f4;
@@ -13,7 +11,6 @@ body {
     padding: 20px;
 }
 
-/* Container principal */
 .container {
     max-width: 1200px; /* Tamanho ideal para a análise */
     width: 100%;
@@ -25,7 +22,6 @@ body {
     overflow-x: hidden;
 }
 
-/* Estilos específicos para a página de upload */
 .upload-page .container {
     max-width: 600px; /* Tornando a página de upload mais compacta */
     padding: 40px;
@@ -45,10 +41,9 @@ body {
 }
 
 .upload-page .btn:hover {
-    background-color: #2ecc71; /* Verde mais claro ao passar o mouse */
+    background-color: #2ecc71; 
 }
 
-/* Estilos para o input de arquivo com label personalizado */
 .upload-page .upload-label {
     display: inline-block;
     background-color: #3498db;
@@ -63,14 +58,13 @@ body {
 }
 
 .upload-page .upload-label:hover {
-    background-color: #2980b9; /* Cor de hover para o label */
+    background-color: #2980b9;
 }
 
 .upload-page input[type="file"] {
     display: none;
 }
 
-/* Estilo para as tabelas */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -97,7 +91,6 @@ table tbody tr:hover {
     background-color: #f1f1f1;
 }
 
-/* Melhorando a legibilidade da tabela com bordas e padding */
 table caption {
     font-size: 1.5em;
     margin-bottom: 15px;
@@ -106,7 +99,6 @@ table caption {
     color: #2980b9;
 }
 
-/* Seções de colunas numéricas e categóricas */
 .column-section {
     margin-top: 40px;
     text-align: center;
@@ -137,7 +129,6 @@ table caption {
     background-color: #2980b9;
 }
 
-/* Área dos gráficos */
 .graph-container {
     display: flex;
     justify-content: space-around;
@@ -162,7 +153,6 @@ table caption {
     border-radius: 5px;
 }
 
-/* Botões */
 .btn {
     background-color: #3498db;
     color: white;
@@ -181,7 +171,6 @@ table caption {
     background-color: #2980b9;
 }
 
-/* Tabela de resultados */
 .result-table {
     width: 100%;
     border-collapse: collapse;
@@ -208,7 +197,6 @@ table caption {
     background-color: #e0e0e0;
 }
 
-/* Tabela de precisão */
 .table-accuracy {
     font-size: 18px;
     font-weight: bold;
@@ -219,7 +207,6 @@ table caption {
     border-radius: 5px;
 }
 
-/* Responsividade */
 @media (max-width: 768px) {
     .container {
         padding: 15px;

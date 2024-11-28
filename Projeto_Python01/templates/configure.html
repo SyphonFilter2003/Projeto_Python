@@ -13,7 +13,7 @@
         <!-- Instrução para o usuário -->
         <p>Selecione as variáveis para treinar o modelo:</p>
 
-        <form method="POST">
+        <form method="POST" id="model-config-form">
             <!-- Seção para selecionar as features -->
             <div class="form-group">
                 <label for="features"><strong>Selecione as variáveis independentes (features)</strong></label><br>
@@ -60,6 +60,15 @@
     </div>
 
     <script>
+        // Validação para garantir que pelo menos uma feature seja selecionada
+        document.getElementById("model-config-form").addEventListener("submit", function(event) {
+            const features = document.querySelectorAll('input[name="features"]:checked');
+            if (features.length === 0) {
+                event.preventDefault();  // Impede o envio do formulário
+                alert("Por favor, selecione pelo menos uma variável independente (feature).");
+            }
+        });
+
         // Exibe o campo para número de árvores somente quando o Random Forest for selecionado
         const modelSelect = document.querySelector('select[name="model"]');
         const rfParams = document.getElementById('rf_params');
