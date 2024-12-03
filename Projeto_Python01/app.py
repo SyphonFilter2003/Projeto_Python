@@ -60,7 +60,7 @@ def train_model(data, features, target, model_choice, n_estimators=100):
     report = classification_report(y_test, y_pred, output_dict=True)
     accuracy = model.score(X_test, y_test) 
 
-    importance_graph_base64 = None  # Inicializa a variável
+    importance_graph_base64 = None 
 
     if model_choice == "random_forest":
         feature_importances = model.feature_importances_
