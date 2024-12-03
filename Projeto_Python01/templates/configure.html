@@ -10,11 +10,9 @@
     <div class="container">
         <h1>Configuração do Modelo de Machine Learning</h1>
 
-        <!-- Instrução para o usuário -->
         <p>Selecione as variáveis para treinar o modelo:</p>
 
         <form method="POST" id="model-config-form">
-            <!-- Seção para selecionar as features -->
             <div class="form-group">
                 <label for="features"><strong>Selecione as variáveis independentes (features)</strong></label><br>
                 <div class="checkbox-group">
@@ -26,7 +24,6 @@
                 </div>
             </div>
 
-            <!-- Seção para selecionar a variável alvo -->
             <div class="form-group">
                 <label for="target"><strong>Selecione a variável alvo (target)</strong></label>
                 <select name="target" class="form-control">
@@ -36,7 +33,6 @@
                 </select>
             </div>
 
-            <!-- Seção para selecionar o tipo de modelo -->
             <div class="form-group">
                 <label for="model"><strong>Selecione o tipo de modelo</strong></label>
                 <select name="model" class="form-control">
@@ -46,13 +42,11 @@
                 </select>
             </div>
 
-            <!-- Se a opção for Random Forest, exibe o número de árvores -->
             <div class="form-group" id="rf_params" style="display:none;">
                 <label for="n_estimators"><strong>Número de Árvores no Random Forest</strong></label>
                 <input type="number" name="n_estimators" class="form-control" value="100" min="10" max="500">
             </div>
 
-            <!-- Botão para enviar o formulário -->
             <div class="form-group">
                 <button type="submit" class="btn btn-primary">Treinar Modelo</button>
             </div>
@@ -60,7 +54,6 @@
     </div>
 
     <script>
-        // Validação para garantir que pelo menos uma feature seja selecionada
         document.getElementById("model-config-form").addEventListener("submit", function(event) {
             const features = document.querySelectorAll('input[name="features"]:checked');
             if (features.length === 0) {
@@ -69,7 +62,6 @@
             }
         });
 
-        // Exibe o campo para número de árvores somente quando o Random Forest for selecionado
         const modelSelect = document.querySelector('select[name="model"]');
         const rfParams = document.getElementById('rf_params');
 

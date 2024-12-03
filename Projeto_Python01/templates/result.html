@@ -36,26 +36,28 @@
             </tbody>
         </table>
 
-        <div class="table-accuracy">
-            <strong>Precisão do Modelo: {{ accuracy }}</strong>
-        </div>
-
         <div class="graph-container">
+            {% if accuracy_graph_base64 %}
+                <div class="graph-item">
+                    <h4>Precisão do Modelo</h4>
+                    <img src="data:image/png;base64,{{ accuracy_graph_base64 }}" alt="Precisão do Modelo" class="graph-image">
+                </div>
+            {% endif %}
+            
             {% if confusion_matrix %}
                 <div class="graph-item">
                     <h4>Matriz de Confusão</h4>
-                    <img src="{{ url_for('static', filename='confusion_matrix.png') }}" alt="Matriz de Confusão">
+                    <img src="{{ url_for('static', filename='confusion_matrix.png') }}" alt="Matriz de Confusão" class="graph-image">
                 </div>
             {% endif %}
-
+        
             {% if roc_curve %}
                 <div class="graph-item">
                     <h4>Curva ROC</h4>
-                    <img src="{{ url_for('static', filename='roc_curve.png') }}" alt="Curva ROC">
+                    <img src="{{ url_for('static', filename='roc_curve.png') }}" alt="Curva ROC" class="graph-image">
                 </div>
             {% endif %}
-
-            <!-- Exibe o gráfico de importância, se disponível -->
+        
             {% if importance_graph_base64 %}
                 <div class="graph-item">
                     <h4>Importância das Variáveis</h4>
@@ -63,8 +65,7 @@
                 </div>
             {% endif %}
         </div>
-
-        <!-- Botão de re-treinamento -->
+        
         <form action="{{ url_for('retrain_model') }}" method="POST">
             <button type="submit" class="btn">Re-treinar Modelo</button>
         </form>

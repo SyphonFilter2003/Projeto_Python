@@ -9,18 +9,16 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 </head>
-<body class="upload-page"> <!-- Adicionei a classe "upload-page" ao body -->
+<body class="upload-page">
     <div class="container">
         <h1>Upload de Arquivo CSV</h1>
         <p>Envie o arquivo que deseja analisar.</p>
         <form method="POST" enctype="multipart/form-data">
             <div class="form-group">
-                <!-- Label personalizado que age como um botão -->
                 <label for="file" class="upload-label" id="file-label">Escolha um arquivo CSV</label>
-                <!-- Input de arquivo, agora oculto -->
                 <input type="file" class="form-control" id="file" name="file" accept=".csv" onchange="updateFileName()">
             </div>
-            <button type="submit" class="btn btn-success">Enviar</button> <!-- Alterei a cor para verde -->
+            <button type="submit" class="btn btn-success">Enviar</button>
         </form>
     </div>
 
@@ -49,7 +47,6 @@
     {% endif %}
 
     <script>
-        // Função para atualizar o nome do arquivo no label
         function updateFileName() {
             var input = document.getElementById('file');
             var label = document.getElementById('file-label');

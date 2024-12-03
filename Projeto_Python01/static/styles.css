@@ -12,7 +12,7 @@ body {
 }
 
 .container {
-    max-width: 1200px; /* Tamanho ideal para a análise */
+    max-width: 1200px; 
     width: 100%;
     margin: 0 auto;
     padding: 30px;
@@ -23,12 +23,12 @@ body {
 }
 
 .upload-page .container {
-    max-width: 600px; /* Tornando a página de upload mais compacta */
+    max-width: 600px; 
     padding: 40px;
 }
 
 .upload-page .btn {
-    background-color: #27ae60; /* Verde para o botão de upload */
+    background-color: #27ae60; 
     color: white;
     padding: 12px 20px;
     border: none;
@@ -221,6 +221,13 @@ table caption {
         font-size: 0.9em;
     }
 
+    .graph-image {
+        width: 80%;       
+        height: auto;     
+        max-width: 900px; 
+        margin: 0 auto;   
+        display: block;   
+    }
     .graph-item {
         width: 100%;
         height: 250px;

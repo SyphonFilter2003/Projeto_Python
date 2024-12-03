@@ -6,117 +6,115 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
 from sklearn.svm import SVC
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import classification_report
-import joblib  # Para salvar o modelo treinado
+import joblib 
 import base64
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = 'uploads'  # Pasta onde os arquivos serão salvos
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)  # Cria a pasta caso não exista
+app.config['UPLOAD_FOLDER'] = 'uploads'  
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)  
 
-# Variáveis globais
-uploaded_data = None  # Dados carregados do CSV
-label_encoders = {}   # Dicionário para armazenar os LabelEncoders
-model = None          # Modelo treinado
-target_encoder = None # Para armazenar o encoder da variável alvo (se necessário)
+uploaded_data = None  
+label_encoders = {}   
+model = None          
+target_encoder = None
 
-# Função para carregar o modelo treinado (se houver)
 def load_model():
     global model
-    if os.path.exists('model.pkl'):
-        model = joblib.load('model.pkl')  # Carrega o modelo salvo em disco
+    if os.path.exists('model.pkl') and os.path.getsize('model.pkl') > 0:
+        try:
+            model = joblib.load('model.pkl')  
+            print("Modelo carregado com sucesso!")
+        except Exception as e:
+            print(f"Erro ao carregar o modelo: {e}")
+            model = None  
+    else:
+        print("Nenhum modelo salvo encontrado ou o arquivo está vazio.")
+        model = None 
 
-# Função para treinar o modelo com os dados fornecidos
 def train_model(data, features, target, model_choice, n_estimators=100):
     X = data[features]
     y = data[target]
 
-    # Divisão dos dados em treino e teste (30% para teste)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
-    # Escolher o modelo baseado na escolha
     if model_choice == "random_forest":
         model = RandomForestClassifier(n_estimators=n_estimators, random_state=42)
     elif model_choice == "logistic_regression":
-        model = LogisticRegression(max_iter=1000)  # Aumenta o número de iterações para a convergência
+        model = LogisticRegression(max_iter=1000)  
     elif model_choice == "svm":
         model = SVC()
 
-    # Treinamento do modelo
     model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)  # Fazendo previsões
+    y_pred = model.predict(X_test)  
 
-    # Salvar o modelo treinado com joblib para reuso
-    joblib.dump(model, 'model.pkl')
+    try:
+        joblib.dump(model, 'model.pkl')
+        print("Modelo salvo com sucesso!")
+    except Exception as e:
+        print(f"Erro ao salvar o modelo: {e}")
 
-    # Gerar o relatório de classificação
     report = classification_report(y_test, y_pred, output_dict=True)
-    accuracy = model.score(X_test, y_test)  # Acurácia do modelo
+    accuracy = model.score(X_test, y_test) 
 
-    # Gerar o gráfico de importância das variáveis (somente para RandomForest)
-    feature_importances = None
+    importance_graph_base64 = None  # Inicializa a variável
+
     if model_choice == "random_forest":
         feature_importances = model.feature_importances_
 
-        # Gerar o gráfico da importância das variáveis
         plt.figure()
         plt.barh(features, feature_importances, color="skyblue")
         plt.xlabel("Importância")
         plt.title("Importância das Variáveis - Random Forest")
         
-        # Salvar o gráfico em base64 para exibição no template
         buffer = io.BytesIO()
         plt.savefig(buffer, format="png")
         buffer.seek(0)
         importance_graph_base64 = base64.b64encode(buffer.read()).decode('utf-8')
         buffer.close()
         plt.close()
+    
+    else:
+        importance_graph_base64 = None
 
-    return report, accuracy, importance_graph_base64  # Agora retornamos o gráfico de importância também
+    return report, accuracy, importance_graph_base64
 
-# Rota de upload de arquivos CSV
 @app.route("/", methods=["GET", "POST"])
 def upload_file():
     if request.method == "POST":
-        # Verificar se o arquivo foi enviado corretamente
         if 'file' not in request.files:
             return render_template('upload.html', upload_success=False, error_message="Nenhum arquivo enviado.")
         file = request.files['file']
         if file.filename == '':
             return render_template('upload.html', upload_success=False, error_message="Arquivo sem nome.")
-        if file and file.filename.endswith('.csv'):  # Verifica se é um arquivo CSV
+        if file and file.filename.endswith('.csv'):  
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
-            file.save(filepath)  # Salva o arquivo no diretório de uploads
+            file.save(filepath)  
             global uploaded_data
-            uploaded_data = pd.read_csv(filepath)  # Carrega os dados CSV para o pandas
+            uploaded_data = pd.read_csv(filepath)  
             
-            # Exibe pop-up de sucesso e depois redireciona para a análise
             return render_template('upload.html', upload_success=True)
         else:
             return render_template('upload.html', upload_success=False, error_message="Por favor, envie um arquivo CSV.")
     
     return render_template("upload.html", upload_success=False)
 
-# Rota para análise dos dados (estatísticas e gráficos)
 @app.route("/analyze", methods=["GET", "POST"])
 def analyze_data():
     global uploaded_data
     if uploaded_data is None:
-        return redirect(url_for('upload_file'))  # Se não houver dados carregados, redireciona para o upload
+        return redirect(url_for('upload_file'))  
 
-    # Geração de estatísticas descritivas (média, desvio padrão, etc.)
     summary = uploaded_data.describe(include='all').transpose()
 
-    # Listando colunas numéricas e categóricas
     numeric_columns = uploaded_data.select_dtypes(include=['number']).columns.tolist()
     categorical_columns = uploaded_data.select_dtypes(exclude=['number']).columns.tolist()
 
-    # Inicializando o dicionário para armazenar os gráficos
     plots = {}
 
-    # Gerar gráficos para as colunas numéricas
     for column in numeric_columns:
         plt.figure()
         uploaded_data[column].hist(bins=20, color="skyblue", edgecolor="black")
@@ -124,108 +122,133 @@ def analyze_data():
         plt.xlabel(column)
         plt.ylabel("Frequência")
 
-        # Salvar o gráfico em formato base64 para exibição no HTML
         buffer = io.BytesIO()
         plt.savefig(buffer, format="png")
         buffer.seek(0)
         image_base64 = base64.b64encode(buffer.read()).decode('utf-8')
         buffer.close()
-        plt.close()  # Fecha a figura para liberar recursos
-        plots[column] = image_base64  # Armazenando o gráfico
+        plt.close()  
+        plots[column] = image_base64  
 
-    # Passa os dados para o template renderizado
     return render_template(
         "analyze.html",
         summary=summary.to_html(classes="table"),
         numeric_columns=numeric_columns,
         categorical_columns=categorical_columns,
-        plots=plots  # Passando os gráficos gerados para o template
+        plots=plots  
     )
 
-# Rota para configuração do modelo (escolher variáveis e modelo)
 @app.route("/configure", methods=["GET", "POST"])
 def configure_prediction():
-    global uploaded_data
+    global uploaded_data, target_column
     if uploaded_data is None:
-        return redirect(url_for('upload_file'))  # Se não houver dados, redireciona para o upload
+        return redirect(url_for('upload_file')) 
 
-    columns = uploaded_data.columns  # Obtém as colunas do DataFrame
+    columns = uploaded_data.columns  
     if request.method == "POST":
-        # Pega as variáveis do formulário
         features = request.form.getlist("features")
         target = request.form.get("target")
+        target_column = target 
         model_choice = request.form.get("model")
-        n_estimators = int(request.form.get("n_estimators", 100))  # Valor padrão de 100 árvores no Random Forest
+        n_estimators = int(request.form.get("n_estimators", 100)) 
 
-        # Validação das variáveis
         if not features or not target:
             return "Por favor, selecione as variáveis.", 400
         if target not in uploaded_data.columns or any(f not in uploaded_data.columns for f in features):
             return "Seleção inválida de variáveis.", 400
 
-        # Codificando variáveis categóricas com LabelEncoder
         for col in uploaded_data.columns:
-            if uploaded_data[col].dtype == 'object':  # Se a coluna for categórica
+            if uploaded_data[col].dtype == 'object': 
                 le = LabelEncoder()
-                uploaded_data[col] = le.fit_transform(uploaded_data[col])  # Codifica a coluna
-                label_encoders[col] = le  # Salva o encoder
+                uploaded_data[col] = le.fit_transform(uploaded_data[col])  
+                label_encoders[col] = le  
 
-        # Treina o modelo com as variáveis selecionadas
         report, accuracy, importance_graph_base64 = train_model(uploaded_data, features, target, model_choice, n_estimators)
 
-        # Renderiza a página de resultados com o modelo treinado e o gráfico de importância
         return render_template(
             "result.html", 
             report=report, 
             accuracy=accuracy,
-            importance_graph=importance_graph_base64  # Passa o gráfico para o template
+            importance_graph=importance_graph_base64,  
+            accuracy_graph_base64=generate_accuracy_graph(accuracy)  
         )
 
-    return render_template("configure.html", columns=columns)  # Exibe a página de configuração com as colunas
+    return render_template("configure.html", columns=columns)  
 
-
-# Rota para re-treinamento do modelo (usando os mesmos dados)
 @app.route("/retrain", methods=["POST"])
 def retrain_model():
     global uploaded_data, model
 
     if uploaded_data is None:
-        return redirect(url_for('upload_file'))  # Se não houver dados, redireciona para o upload
+        return redirect(url_for('upload_file')) 
 
-    # Coleta os dados do formulário
     features = request.form.getlist("features")
     target = request.form.get("target")
     model_choice = request.form.get("model")
-    n_estimators = int(request.form.get("n_estimators", 100))  # Caso esteja utilizando Random Forest
 
-    # Adiciona prints para depuração
-    print("Features:", features)
-    print("Target:", target)
-    print("Modelo escolhido:", model_choice)
+    if not features or not target:
+        return "Por favor, selecione as variáveis.", 400
+    if target not in uploaded_data.columns or any(f not in uploaded_data.columns for f in features):
+        return "Seleção inválida de variáveis.", 400
 
-    # Valida se todas as variáveis foram passadas corretamente
-    if not features or not target or not model_choice:
-        return "Por favor, forneça todas as variáveis necessárias", 400
-
-    # Codifica as variáveis categóricas (se necessário)
     for col in uploaded_data.columns:
-        if uploaded_data[col].dtype == 'object':
+        if uploaded_data[col].dtype == 'object': 
             le = LabelEncoder()
-            uploaded_data[col] = le.fit_transform(uploaded_data[col])
-            label_encoders[col] = le
+            uploaded_data[col] = le.fit_transform(uploaded_data[col])  
+            label_encoders[col] = le 
 
-    # Re-treina o modelo com os dados e variáveis atualizados
-    report, accuracy = train_model(uploaded_data, features, target, model_choice, n_estimators)
+    report, accuracy, importance_graph_base64 = train_model(uploaded_data, features, target, model_choice)
 
-    # Renderiza a página de resultados com o novo modelo treinado
-    return render_template("result.html", report=report, accuracy=accuracy)
+    model = joblib.load('model.pkl') 
 
-# Rota para a página de resultados do modelo treinado
-@app.route("/result")
-def result_page():
-    return render_template('result.html')
+    return render_template(
+        "result.html", 
+        report=report, 
+        accuracy=accuracy,
+        importance_graph=importance_graph_base64
+    )
+
+def generate_accuracy_graph(accuracy):
+    fig, ax = plt.subplots(figsize=(5, 3))
+    
+    ax.bar(['Precisão'], [accuracy], color='blue')
+
+    ax.set_ylim(0, 1)
+    ax.set_ylabel('Precisão')
+    ax.set_title(f'Precisão do Modelo: {accuracy:.2f}')
+    
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    buf.seek(0)
+
+    img_base64 = base64.b64encode(buf.read()).decode('utf-8')
+    buf.close()
+    return img_base64
+
+
+@app.route('/results')
+def results():
+    global model
+
+    if model is None:
+        return redirect(url_for('configure_prediction')) 
+
+    X_test = uploaded_data.drop(columns=[target_column])  
+    y_test = uploaded_data[target_column]  
+    accuracy = model.score(X_test, y_test)  
+    accuracy_graph_base64 = generate_accuracy_graph(accuracy)
+
+    y_pred = model.predict(X_test)
+    report = classification_report(y_test, y_pred, output_dict=True)
+
+    return render_template(
+        'results.html',
+        accuracy=accuracy,
+        report=report,
+        accuracy_graph_base64=accuracy_graph_base64 
+    )
+
+load_model()
 
 if __name__ == "__main__":
-    # Tenta carregar o modelo existente, se houver
-    load_model()
     app.run(debug=True)
